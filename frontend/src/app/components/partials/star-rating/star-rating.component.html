@@ -1,0 +1,7 @@
+<div class="container">
+    <img *ngFor="let star of starList"
+        (click) = "setRate(star)" 
+        [src] = "getStarImage(star)"
+        [ngStyle]="styles"
+    />
+</div>
