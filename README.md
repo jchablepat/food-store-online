@@ -182,6 +182,56 @@ Entonces algunas rutas quedarían así:
 - `POST https://food-store-backend.onrender.com/api/users/login`
 - `GET https://food-store-backend.onrender.com/api/orders/track/<orderId>`
 
+## Despliegue del frontend en Vercel
+
+El frontend puede desplegarse como sitio estático (SPA) en Vercel usando el subdirectorio `frontend/` como raíz del proyecto.
+
+### Configuración recomendada (Root Directory = frontend)
+
+En Vercel → New Project:
+
+- **Root Directory**: `frontend`
+- **Install Command**: `npm ci`
+- **Build Command**: `npm run build:vercel`
+- **Output Directory**: `dist/angular-app/browser`
+- **Node.js Version**: `20.x` o `22.x` (LTS)
+
+Notas:
+
+- El script `build:vercel` fuerza el output a `frontend/dist` (evita escribir en `backend/built/public`, que es el output del build “monorepo”).
+- Si al refrescar rutas (por ejemplo `/login` o `/track/123`) Vercel devuelve 404, necesitas configurar un rewrite para que todas las rutas apunten a `index.html` (SPA routing).
+
+### Conectar frontend (Vercel) con backend (Render)
+
+El frontend consume el backend a través de una URL base configurable por environment.
+
+- **Dev**: `apiBaseUrl = http://localhost:5000`
+- **Prod**: `apiBaseUrl = https://<tu-backend>.onrender.com`
+
+Archivos:
+
+- `frontend/src/environments/environment.development.ts` (dev)
+- `frontend/src/environments/environment.ts` (prod)
+
+Ejemplo (producción):
+
+- `apiBaseUrl: 'https://food-store-backend.onrender.com'`
+
+Además, en el backend (Render) configura CORS con:
+
+- `CLIENT_URL = https://<tu-app>.vercel.app`
+
+### PayPal client-id (frontend)
+
+El `client-id` de PayPal no está hardcodeado en `index.html`. Se configura en:
+
+- `frontend/src/environments/environment.development.ts` (dev)
+- `frontend/src/environments/environment.ts` (prod)
+
+Variable:
+
+- `paypalClientId`
+
 ## API REST (resumen)
 
 Base URL (dev): `http://localhost:5000`
@@ -226,7 +276,7 @@ Autenticación:
 
 ## Integración con PayPal (breve)
 
-- El SDK de PayPal se carga en `frontend/src/index.html` mediante un `<script>` con `client-id`.
+- El SDK de PayPal se carga dinámicamente desde el componente `paypal-button` usando el `paypalClientId` configurado en los environments.
 - El componente `paypal-button` crea la orden y ejecuta `capture()` al aprobar el pago.
 - Tras capturar el pago, se envía el `paymentId` al backend (`POST /api/orders/pay`) para actualizar el pedido.
 

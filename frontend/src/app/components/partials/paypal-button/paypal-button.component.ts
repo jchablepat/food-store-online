@@ -4,6 +4,7 @@ import { OrderService } from '../../../services/order.service';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { CartService } from '../../../services/cart.service';
+import { environment } from '../../../../environments/environment';
 
 // window.paypal.Buttons().render('#paypal-button-container');
 // Declare the paypal variable
@@ -29,7 +30,15 @@ export class PaypalButtonComponent implements OnInit {
     private cartService: CartService
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    const paypalClientId = this.getPaypalClientId();
+    if (!paypalClientId) {
+      this.toastrService.error('Missing PayPal client id configuration', 'PayPal error');
+      return;
+    }
+
+    await this.loadPaypalSdk(paypalClientId);
+
     const self = this; // Fix because, this is not available inside the paypal.Buttons() function
 
     // Create a new PayPal button
@@ -65,5 +74,33 @@ export class PaypalButtonComponent implements OnInit {
       }
     })
     .render(this.paypaylElement.nativeElement);
+  }
+
+  private getPaypalClientId(): string {
+    const runtimeValue = (window as any)?.__env?.PAYPAL_CLIENT_ID;
+    const clientId = (runtimeValue ?? environment.paypalClientId ?? '').toString().trim();
+    return clientId;
+  }
+
+  private loadPaypalSdk(clientId: string): Promise<void> {
+    if ((window as any).paypal) return Promise.resolve();
+
+    const existingScript = document.getElementById('paypal-sdk');
+    if (existingScript) {
+      return new Promise((resolve, reject) => {
+        existingScript.addEventListener('load', () => resolve());
+        existingScript.addEventListener('error', () => reject(new Error('Failed to load PayPal SDK')));
+      });
+    }
+
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.id = 'paypal-sdk';
+      script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}`;
+      script.async = true;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('Failed to load PayPal SDK'));
+      document.body.appendChild(script);
+    });
   }
 }
