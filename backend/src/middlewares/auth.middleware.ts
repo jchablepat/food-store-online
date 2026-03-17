@@ -10,7 +10,7 @@ export default (req:any, res:any, next:any) => {
         req.user = decodeUser;
 
     } catch (error) {
-        res.status(HTTP_UNAUTHORIZED).json({ message: 'Token is invalid!' });
+        res.status(HTTP_UNAUTHORIZED).json({ message: 'Token is invalid!', error: (error as Error).message });
     }
 
     return next();
