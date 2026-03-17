@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "cd src && nodemon server.ts",
-    "build": "npm install && tsc"
+    "dev": "nodemon --watch src --ext ts --exec ts-node src/server.ts",
+    "build": "tsc",
+    "start": "node built/server.js"
   },
   "keywords": [],
   "author": "",

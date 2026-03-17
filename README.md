@@ -145,6 +145,43 @@ Qué hace:
 - `npm run start` en la raíz:
   - Ejecuta `node backend/built/server.js`.
 
+## Despliegue del backend en Render
+
+Este proyecto puede desplegarse como **Web Service** en Render usando el subdirectorio `backend/` como raíz de la app.
+
+### Configuración recomendada (Root Directory = backend)
+
+En Render → New → Web Service:
+
+- **Root Directory**: `backend`
+- **Build Command**: `npm ci && npm run build`
+- **Start Command**: `npm start`
+
+Variables de entorno (Environment Variables):
+
+- `MONGODB_REMOTE_URL`: cadena de conexión (MongoDB Atlas u otra)
+- `JWT_SECRET`: secreto para firmar JWT
+- `CLIENT_URL`: URL del frontend permitido por CORS (en producción será tu dominio del frontend)
+- `NODE_ENV` (opcional): `production`
+- `PORT` (opcional): Render lo inyecta automáticamente en la mayoría de casos
+
+Notas:
+
+- Evita usar comas para encadenar comandos. Si necesitas dos comandos, usa `&&` (por ejemplo: `npm run prebuild && npm run build`).
+- En este repo el comando `start` de `backend` ejecuta el servidor compilado: `node built/server.js`.
+
+### Ejemplo de URL final (rutas)
+
+Suponiendo que Render te da una URL como:
+
+- `https://food-store-backend.onrender.com`
+
+Entonces algunas rutas quedarían así:
+
+- `GET https://food-store-backend.onrender.com/api/foods`
+- `POST https://food-store-backend.onrender.com/api/users/login`
+- `GET https://food-store-backend.onrender.com/api/orders/track/<orderId>`
+
 ## API REST (resumen)
 
 Base URL (dev): `http://localhost:5000`
@@ -201,4 +238,3 @@ Autenticación:
 - Añadir validaciones más estrictas de entrada (DTOs/schemas) y rate limiting.
 - Añadir tests automatizados (backend) y pipeline de CI.
 - Docker Compose para levantar frontend+backend+MongoDB de forma reproducible.
-
