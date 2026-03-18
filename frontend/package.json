@@ -4,9 +4,13 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "npm install && ng build --configuration production",
+    "prestart": "node scripts/generate-env.mjs --mode development",
+    "prebuild": "node scripts/generate-env.mjs --mode production",
+    "build": "ng build --configuration production",
+    "prebuild:vercel": "node scripts/generate-env.mjs --mode production --required NG_APP_API_BASE_URL",
     "build:vercel": "ng build --configuration production --output-path dist",
     "watch": "ng build --watch --configuration development",
+    "prewatch": "node scripts/generate-env.mjs --mode development",
     "test": "ng test"
   },
   "private": true,
