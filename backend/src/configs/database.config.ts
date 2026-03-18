@@ -1,7 +1,12 @@
 import { connect, ConnectOptions } from 'mongoose';
 
 export const dbConnect = () => {
-    connect(process.env.MONGODB_REMOTE_URL!, {
+    const uri = process.env.MONGODB_REMOTE_URL;
+    if (!uri) {
+        throw new Error('MONGODB_REMOTE_URL is missing. Create backend/.env (or backend/src/.env) with MONGODB_REMOTE_URL=...');
+    }
+
+    connect(uri, {
 
     } as ConnectOptions)
     .then(
