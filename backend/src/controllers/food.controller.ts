@@ -28,7 +28,7 @@ export async function getFoods(req: Request, res: Response) {
 
 export async function searchFoods(req: Request, res: Response) {
   try {
-    const searchTerm = req.params.searchTerm;
+    const searchTerm = Array.isArray(req.params.searchTerm) ? req.params.searchTerm[0] : req.params.searchTerm;
     const searchRegex = new RegExp(searchTerm, "i");
     const foods = await FoodModel.find({ name: { $regex: searchRegex } });
     res.status(200).send(foods);

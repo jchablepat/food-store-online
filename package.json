@@ -3,7 +3,7 @@
     "description": "A food delivery app built with Angular and Node.js",
     "version": "1.0.0",
     "engines": {
-      "node": ">=20.11.0 <23"
+      "node": "^18.19.1 || ^20.11.1 || ^22.0.0"
     },
     "scripts": {
       "start": "cd backend/built && node server.js",

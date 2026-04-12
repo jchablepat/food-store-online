@@ -56,7 +56,8 @@ Notas:
 
 ### Requisitos
 
-- Node.js: `>=20.11.0 <23` (según `package.json` en la raíz)
+- Node.js (Frontend Angular 19): `^18.19.1 || ^20.11.1 || ^22.0.0` (recomendado: `20.x`)
+- Node.js (Backend): `>=20.11.0 <23`
 - npm (incluido con Node)
 - MongoDB (local o Atlas)
 
@@ -77,6 +78,8 @@ Notas:
    Este script se ejecuta dentro de `backend/src` con `nodemon`.
 
 ### Frontend (Angular)
+
+Requiere Node.js: `^18.19.1 || ^20.11.1 || ^22.0.0` (recomendado: `20.x`).
 
 1. Instala dependencias:
    ```bash

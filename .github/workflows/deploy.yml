@@ -1,0 +1,57 @@
+name: Deploy al VPS
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Conectar al VPS y desplegar
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            APP_DIR="$HOME/food-store-online"
+            REPO_URL="https://github.com/jchablepat/food-store-online.git"
+
+            if [ ! -d "$APP_DIR/.git" ]; then
+              git clone "$REPO_URL" "$APP_DIR"
+            fi
+
+            cd "$APP_DIR"
+            git fetch origin master
+            git reset --hard origin/master
+
+            cat > frontend/.env <<'EOF'
+            NG_APP_API_BASE_URL=
+            NG_APP_PAYPAL_CLIENT_ID=${{ secrets.NG_APP_PAYPAL_CLIENT_ID }}
+            EOF
+
+            cd backend
+            npm ci
+
+            cd ../frontend
+            npm ci
+
+            cd ..
+            npm run build
+
+            cat > backend/built/.env <<'EOF'
+            MONGODB_REMOTE_URL=${{ secrets.MONGODB_REMOTE_URL }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            CLIENT_URL=${{ secrets.CLIENT_URL }}
+            NODE_ENV=production
+            PORT=5000
+            EOF
+
+            if command -v pm2 >/dev/null 2>&1; then
+              pm2 describe food-store >/dev/null 2>&1 && pm2 restart food-store --update-env || pm2 start npm --name food-store -- start
+              pm2 save
+            else
+              echo "PM2 no esta instalado en el VPS"
+            fi
