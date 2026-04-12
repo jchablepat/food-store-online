@@ -16,10 +16,11 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.VPS_PORT }}
           script: |
-            APP_DIR="$HOME/food-store-online"
+            APP_DIR="/var/www/food-store-online"
             REPO_URL="https://github.com/jchablepat/food-store-online.git"
 
             if [ ! -d "$APP_DIR/.git" ]; then
+              mkdir -p "$(dirname "$APP_DIR")"
               git clone "$REPO_URL" "$APP_DIR"
             fi
 
