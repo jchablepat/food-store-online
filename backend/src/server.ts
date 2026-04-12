@@ -5,7 +5,6 @@ import userRouter from './routers/user.router';
 import orderRouter from './routers/order.router';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-import path from 'path';
 dotenv.config();
 import { dbConnect } from './configs/database.config';
 dbConnect();
@@ -26,10 +25,11 @@ app.use("/api/foods", foodRouter);
 app.use("/api/users", userRouter);
 app.use("/api/orders", orderRouter);
 
-app.use(express.static('public'));
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname,'public', 'index.html'))
-})
+app.use((req, res) => {
+    res.status(404).json({
+        message: 'Operación desconocida o ruta no encontrada'
+    });
+});
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
