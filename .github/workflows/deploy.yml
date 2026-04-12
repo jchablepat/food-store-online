@@ -28,7 +28,7 @@ jobs:
             git reset --hard origin/master
 
             cat > frontend/.env <<'EOF'
-            NG_APP_API_BASE_URL=
+            NG_APP_API_BASE_URL=${{ secrets.NG_APP_API_BASE_URL }}
             NG_APP_PAYPAL_CLIENT_ID=${{ secrets.NG_APP_PAYPAL_CLIENT_ID }}
             EOF
 
