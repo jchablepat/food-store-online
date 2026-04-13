@@ -26,6 +26,12 @@ app.use(morgan('dev'));
 app.use("/api/foods", foodRouter);
 app.use("/api/users", userRouter);
 app.use("/api/orders", orderRouter);
+app.use("/api/test", (req, res) => {
+    res.status(200).json({
+        CLIENT_URL: process.env.CLIENT_URL!,
+        NODE_ENV: process.env.NODE_ENV
+    });
+});
 
 app.use((req, res) => {
     res.status(404).json({
