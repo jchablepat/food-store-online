@@ -9,6 +9,8 @@ dotenv.config();
 import { dbConnect } from './configs/database.config';
 dbConnect();
 
+console.log("CLIENT_URL:", process.env.CLIENT_URL);
+
 const app = express();
 app.use(express.json());
 app.use(cors({
