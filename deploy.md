@@ -208,7 +208,7 @@ El workflow actual:
 - Instala dependencias de `backend` y `frontend`
 - Ejecuta `npm run build`
 - Genera `backend/built/.env`
-- Reinicia o crea el proceso `food-store` en PM2
+- Recrea el proceso `food-store` en PM2 usando `--cwd /var/www/food-store-online`
 
 Ubicación correcta del workflow:
 
@@ -413,12 +413,18 @@ Sugerencia:
 
 ## 16. PM2 y arranque automático
 
-El workflow intenta reiniciar o crear el proceso:
+El workflow elimina y recrea el proceso para asegurar que PM2 use el `cwd` correcto:
 
 ```bash
-pm2 describe food-store >/dev/null 2>&1 && pm2 restart food-store --update-env || pm2 start npm --name food-store -- start
+pm2 delete food-store || true
+pm2 start npm --name food-store --cwd /var/www/food-store-online -- start
 pm2 save
 ```
+
+Motivo:
+
+- Si PM2 fue creado anteriormente desde otra carpeta, un simple `pm2 restart` puede seguir levantando un checkout viejo o un build antiguo
+- Recrear el proceso con `--cwd` fuerza a PM2 a usar el repo correcto en cada despliegue
 
 Después, en el VPS ejecuta una vez:
 
@@ -576,6 +582,43 @@ Causas comunes:
 - Falta `backend/built/.env`
 - Falló la conexión a MongoDB
 - `CLIENT_URL` es incorrecto
+
+### Error: GitHub Actions termina bien, pero el backend no refleja cambios nuevos
+
+Síntomas comunes:
+
+- Se despliegan cambios nuevos al repo, pero `/api/test` o nuevas rutas no aparecen
+- Los `console.log()` agregados en `backend/src/server.ts` no salen en `pm2 logs`
+- El frontend sigue pegando contra una versión anterior del backend
+
+Causa probable:
+
+- El proceso `food-store` de PM2 fue creado antes con un `cwd` incorrecto
+- `pm2 restart` reinicia el proceso existente, pero no siempre corrige la carpeta desde la que se ejecuta
+- Como resultado, Node puede seguir levantando otro checkout o un `backend/built/server.js` viejo
+
+Qué revisar:
+
+```bash
+cd /var/www/food-store-online
+grep -n "api/test" backend/built/server.js
+pm2 show food-store
+```
+
+Solución:
+
+```bash
+cd /var/www/food-store-online
+npm run build
+pm2 delete food-store || true
+pm2 start npm --name food-store --cwd /var/www/food-store-online -- start
+pm2 save
+pm2 logs food-store --lines 100
+```
+
+Sugerencia:
+
+- Mantén el workflow recreando siempre el proceso con `--cwd /var/www/food-store-online` para evitar que el deploy use una ruta antigua
 
 ### Error: el deploy falla por permisos en `/var/www/food-store-online`
 

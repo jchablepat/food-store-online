@@ -5,6 +5,8 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { CartService } from '../../../services/cart.service';
 import { environment } from '../../../../environments/environment';
+import { HttpErrorResponse } from '@angular/common/http';
+import { getHttpErrorMessage } from '../../../shared/utils/http-error-message';
 
 // window.paypal.Buttons().render('#paypal-button-container');
 // Declare the paypal variable
@@ -63,8 +65,11 @@ export class PaypalButtonComponent implements OnInit {
             this.router.navigateByUrl('/track/' + orderId);
             this.toastrService.success('Payment saved successful!', 'Success');
           },
-          error: () => {
-            this.toastrService.error('Error ocurred while paying!', 'Payment failed');
+          error: (errorResponse: HttpErrorResponse) => {
+            this.toastrService.error(
+              getHttpErrorMessage(errorResponse, 'No se pudo guardar el pago. Intenta nuevamente.'),
+              'Payment failed'
+            );
           }
         });
       },

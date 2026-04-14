@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { User } from '../shared/models/User';
 import { IUserLogin } from '../shared/interfaces/IUserLogin';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { LOGIN_URL, REGISTER_URL } from '../shared/constants/urls';
 import { ToastrService } from 'ngx-toastr';
 import { IUserRegister } from '../shared/interfaces/IUserRegister';
+import { getHttpErrorMessage } from '../shared/utils/http-error-message';
 
 const USER_KEY = 'User';
 @Injectable({
@@ -34,8 +35,11 @@ export class UserService {
             'Login Successful'
           );
         },
-        error: (errorResponse) => {
-          this.toastr.error(errorResponse.error, 'Login Failed');
+        error: (errorResponse: HttpErrorResponse) => {
+          this.toastr.error(
+            getHttpErrorMessage(errorResponse, 'No se pudo iniciar sesion. Intenta nuevamente.'),
+            'Login Failed'
+          );
         }
       })
     ); 
@@ -52,8 +56,11 @@ export class UserService {
             'Register Successful'
           );
         },
-        error: (errorResponse) => {
-          this.toastr.error(errorResponse.error, 'Register Failed');
+        error: (errorResponse: HttpErrorResponse) => {
+          this.toastr.error(
+            getHttpErrorMessage(errorResponse, 'No se pudo completar el registro. Intenta nuevamente.'),
+            'Register Failed'
+          );
         }
       })
     );

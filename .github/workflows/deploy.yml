@@ -51,7 +51,8 @@ jobs:
             EOF
 
             if command -v pm2 >/dev/null 2>&1; then
-              pm2 describe food-store >/dev/null 2>&1 && pm2 restart food-store --update-env || pm2 start npm --name food-store -- start
+              pm2 delete food-store || true
+              pm2 start npm --name food-store --cwd "$APP_DIR" -- start
               pm2 save
             else
               echo "PM2 no esta instalado en el VPS"

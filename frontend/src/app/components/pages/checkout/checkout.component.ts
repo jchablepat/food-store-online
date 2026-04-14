@@ -10,6 +10,8 @@ import { MapComponent } from "../../partials/map/map.component";
 import { OrderService } from '../../../services/order.service';
 import { Router } from '@angular/router';
 import { TitleComponent } from "../../partials/title/title.component";
+import { HttpErrorResponse } from '@angular/common/http';
+import { getHttpErrorMessage } from '../../../shared/utils/http-error-message';
 
 @Component({
   selector: 'app-checkout',
@@ -67,8 +69,11 @@ export class CheckoutComponent implements OnInit {
       next: () => {
         this.router.navigateByUrl('/payment');
       },
-      error: (errorResponse) => {
-        this.toastrService.error(errorResponse.error, 'Cart');
+      error: (errorResponse: HttpErrorResponse) => {
+        this.toastrService.error(
+          getHttpErrorMessage(errorResponse, 'No se pudo crear la orden. Intenta nuevamente.'),
+          'Cart'
+        );
       }
     });
   }
